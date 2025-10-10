@@ -15,5 +15,5 @@ public interface OrderService {
      * @param productId
      * @return
      */
-    Order createorder(Long userId, Long productId);
+    Order createOrder(Long userId, Long productId);
 }

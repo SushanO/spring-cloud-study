@@ -1,5 +1,7 @@
 package top.coenocyte.order.service.impl;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.ServiceInstance;
@@ -11,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import top.coenocyte.cloud.order.bean.Order;
 import top.coenocyte.cloud.product.bean.Product;
+import top.coenocyte.order.feign.ProductFeignClient;
 import top.coenocyte.order.service.OrderService;
 
 import java.math.BigDecimal;
@@ -36,12 +39,18 @@ public class OrderServiceImpl implements OrderService {
     @Resource
     private LoadBalancerClient loadBalancerClient;
 
+    // 声明式Feign远程调用
+    @Resource
+    private ProductFeignClient productFeignClient;
+
+    @SentinelResource(value = "createOrder", blockHandler = "createOrderFallback")
     @Override
-    public Order createorder(Long userId, Long productId) {
+    public Order createOrder(Long userId, Long productId) {
 
 //        Product productFromRemote = getProductFromRemote(productId);
 //        Product productFromRemote = getProductFromRemoteWithLoadBalance(productId);
-        Product productFromRemote = getProductFromRemoteWithLoadBalanceAnnotation(productId);
+//        Product productFromRemote = getProductFromRemoteWithLoadBalanceAnnotation(productId);
+        Product productFromRemote = productFeignClient.getProductById(productId);
         Order order = Order.builder()
                 .id(1L)
                 // 远程调用商品服务获取商品价格
@@ -54,6 +63,19 @@ public class OrderServiceImpl implements OrderService {
                 .build();
         return order;
     }
+    public Order createOrderFallback(Long userId, Long productId, BlockException e) {
+
+        Order order = Order.builder()
+                .id(0L)
+                // 远程调用商品服务获取商品价格
+                .totalAmount(BigDecimal.ZERO)
+                .userId(userId)
+                .nickName("未知用户")
+                .address("未知")
+                .build();
+        return order;
+    }
+
 
     // 手动远程调用商品服务获取商品信息
     // 这里只是简单演示，实际场景中应该使用Feign或者Dubbo来实现远程调用
