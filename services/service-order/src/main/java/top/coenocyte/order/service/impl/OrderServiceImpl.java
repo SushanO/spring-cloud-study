@@ -43,6 +43,7 @@ public class OrderServiceImpl implements OrderService {
     @Resource
     private ProductFeignClient productFeignClient;
 
+    // 当 @SentinelResource 注解标记的资源 默认返回 500 错误页，也可自定义返回值
     @SentinelResource(value = "createOrder", blockHandler = "createOrderFallback")
     @Override
     public Order createOrder(Long userId, Long productId) {
@@ -63,6 +64,8 @@ public class OrderServiceImpl implements OrderService {
                 .build();
         return order;
     }
+
+    // 当 @SentinelResource 注解标记的资源调用失败时，调用此方法
     public Order createOrderFallback(Long userId, Long productId, BlockException e) {
 
         Order order = Order.builder()
