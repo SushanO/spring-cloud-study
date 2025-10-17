@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import top.coenocyte.cloud.product.bean.Product;
 import top.coenocyte.product.service.ProductService;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author 303
  * @description
@@ -28,12 +30,22 @@ public class ProductController {
         String XToken = request.getHeader("X-Token");
         log.info("server-product 接收到请求：productId：{}, X-Token：{}", productId, XToken);
         Product product = productService.getProductById(productId);
+        // 宕机10s,会 Read timed out
 //        try {
-//            // 宕机10s,会 Read timed out
 //            Thread.sleep(10000);
 //        } catch (InterruptedException e) {
 //            throw new RuntimeException(e);
 //        }
+
+        // 宕机2s,配置熔断 慢调用比例
+//        try {
+//            TimeUnit.SECONDS.sleep(2);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
+
+        // 业务异常,配置熔断 异常比例
+//        int i = 1/0;
         return product;
     }
 }

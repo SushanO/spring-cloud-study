@@ -29,6 +29,8 @@ spring:
         dashboard: localhost:8080
       # 立即加载服务
       eager: true
+      # 链路模式：相同资源下，仅对于某一 web 路径下的资源访问生效
+      web-context-unify: false
 logging:
   level:
     top.coenocyte.order.feign: debug
