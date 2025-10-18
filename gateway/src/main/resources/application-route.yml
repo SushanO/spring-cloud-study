@@ -1,0 +1,59 @@
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origin-patterns: '*'
+            allowed-headers: '*'
+            allowed-methods: '*'
+#      自动分配 order: 由小到大执行
+      routes:
+#        全局唯一
+        - id: order-route
+#          指定服务名称
+          uri: lb://service-order
+#          指定断言规则，即路由匹配规则
+          predicates:
+#            - Path=/api/order/**
+#            长写法
+            - name: Path
+              args:
+                patterns: /api/order/**
+#                自动忽略 尾部斜杠（trailing slash）/foo 和 /foo/ 会被视为 等价
+                matchTrailingSlash: true
+          filters:
+#            类似把 /api/order/a/bc 重写为 /a/bc，移除路径前的 /api/order/
+            - RewritePath=/api/order/?(?<segment>.*), /$\{segment}
+#            - AddResponseHeader=X-Response-Red, Blue
+#            自定义过滤器
+            - OnceToken=X-Response-Token, uuid
+          order: 0
+        - id: product-route
+          uri: lb://service-product
+          predicates:
+            - Path=/api/product/**
+          filters:
+            - RewritePath=/api/product/?(?<segment>.*), /$\{segment}
+        - id : gateway-route
+          uri: https://www.baidu.com
+          predicates:
+#            - Path=/**
+            - name: Path
+              args:
+#                Path 谓词支持多个路径模式
+                patterns:
+                -  /s
+            - name: Query
+              args:
+                param: wd
+                regexp: 1
+#            自定义断言
+#            - Custom=user,admin
+            - name: Custom
+              args:
+                param: user
+                value: admin
+#      默认过滤器
+      default-filters:
+        - AddResponseHeader=X-Response-Red, Green

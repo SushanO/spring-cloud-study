@@ -11,6 +11,7 @@ import top.coenocyte.order.feign.fallback.ProductFeignClientFallback;
  * @description
  * @create 2025-10-09 19:48
  */
+//path = "/api/product"
 @FeignClient(value = "service-product", fallback = ProductFeignClientFallback.class)
 public interface ProductFeignClient {
 

@@ -4,6 +4,7 @@ import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import top.coenocyte.cloud.order.bean.Order;
@@ -19,6 +20,7 @@ import top.coenocyte.order.service.OrderService;
 //@RefreshScope
 @Slf4j
 @RestController
+//@RequestMapping("/api/order")
 public class OrderController {
 
     @Resource
@@ -41,7 +43,7 @@ public class OrderController {
                 orderProperties.getDbUrl());
     }
 
-    @GetMapping("/order")
+    @GetMapping("/create")
     public Order createOrder(@RequestParam Long userId,
                              @RequestParam Long productId) {
         Order order = orderService.createOrder(userId, productId);
